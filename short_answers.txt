@@ -1,0 +1,23 @@
+1. What does O(n) mean? O(n^2)?
+
+Both of these describe, roughly, the time it takes an algorithm to process a bunch of items, given the number of items.  O(n) means that the time is proportional to the number of items (for example: finding the smallest item in a list); O(n^2) means that the time is proportional to the _square_ of the number of items (for example: insertion sort).
+
+2. Describe the quick sort algorithm.
+
+It's recursive.  It splits an array into two sections, and quickly ensures that all the items in the first section are less than those in the second.  Then it applies itself on each section recursively.
+
+The "quickly ensures" step consists of choosing some "pivot" value, and swapping items so that all those items that are less than the pivot appear in the first section, and all the other items are in the second.
+
+3. In C, what is a pointer?
+
+It's a variable that holds a memory address.
+
+4. What is the difference between Stack and Heap memory?
+
+The stack is automatically managed, so that when you "put" an item into it (by declaring a local variable), it's well-defined when the item will be removed from it (namely, when the local variable goes out of scope).  That's nice ... but it has the disadvantage that you can't easily create a variable that lives longer than the function that created it.  Hence the heap: another region of memory, where (in C, anyway) you must explicitly allocate space, and then explicitly deallocate that space when you're done using it.
+
+In practice, no human is capable of guaranteeing that each heap allocation is matched with exactly one deallocation, because software is complex and our brains are feeble.  This problem leads us to the next question ...
+
+5. What is the purpose of a garbage collector?
+
+... a garbage collector solves the above bookkeeping problem.  It in effect _guesses_ when it's time to deallocate some memory, freeing the human from having to do that explicitly.  Its guesses are typically good enough so that most modern languages rely on garbage collection.
