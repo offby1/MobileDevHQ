@@ -47,8 +47,14 @@ class Board:
 
     def solve(self):
         for row_index, column_index in self.coordinates_of_holes():
-            peer_values = [self.rows[r][c] for r,c in self.peer_coordinates(row_index, column_index)]
-            print(row_index, column_index, sorted(set(peer_values)))
+            peer_values = set(self.rows[r][c] for r,c in self.peer_coordinates(row_index, column_index))
+            peer_values.discard(self.rows[row_index][column_index])
+            peer_values.discard('-')
+            possible_values = set('123456789').difference(peer_values)
+            if not(possible_values):
+                print("{} {} have no possible solution".format(row_index, column_index))
+                return None
+            print(row_index, column_index, sorted(possible_values))
         return self
 
     def __str__(self):
