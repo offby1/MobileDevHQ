@@ -46,18 +46,18 @@ class Board:
     def set_value(self, row_index, column_index, value):
         self.rows[row_index][column_index] = value
 
-    def _try(self, coords, possible_value):
+    def _try(self, coords, possible_value, depth=0):
         r, c = coords
-        print("Trying {} for {}".format(possible_value, coords))
+        print("{}: Trying {} for {}".format(depth, possible_value, coords))
         copy = Board(self.rows)
         copy.rows[r] = self.rows[r].copy()
         copy.rows[r][c] = possible_value
-        sub = copy.solve()
+        sub = copy.solve(depth=depth + 1)
         if sub:
             return sub
         return None
 
-    def solve(self):
+    def solve(self, depth=0):
         possibles_by_hole = {}
         for row_index, column_index in self.coordinates_of_holes():
             peer_values = set(self.rows[r][c] for r, c in self.peer_coordinates(row_index, column_index))
@@ -72,7 +72,7 @@ class Board:
         # order holes fewest possibilities first.
         for coords, possibles in sorted(possibles_by_hole.items(), key=lambda toop: len(toop[1])):
             for v in possibles:
-                solution = self._try(coords, v)
+                solution = self._try(coords, v, depth=depth)
                 if solution:
                     return solution
 
