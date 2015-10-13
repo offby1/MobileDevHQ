@@ -57,15 +57,18 @@ class Board:
             return sub
         return None
 
+    def not_obviously_impossible_values(self, row_index, column_index):
+        peer_values = set(self.rows[r][c] for r, c in sorted(self.peer_coordinates(row_index, column_index)))
+        peer_values.discard(self.rows[row_index][column_index])
+        peer_values.discard('-')
+        return set('123456789').difference(peer_values)
+
     def solve(self, depth=0):
         possibles_by_hole = {}
         for row_index, column_index in self.coordinates_of_holes():
-            peer_values = set(self.rows[r][c] for r, c in sorted(self.peer_coordinates(row_index, column_index)))
-            peer_values.discard(self.rows[row_index][column_index])
-            peer_values.discard('-')
-            possible_values = set('123456789').difference(peer_values)
+            possible_values = self.not_obviously_impossible_values(row_index, column_index)
             if not(possible_values):
-                print("{} {} have no possible solution".format(row_index, column_index))
+                print("{}: {} {} have no possible solution".format(depth, row_index, column_index))
                 return None
             possibles_by_hole[(row_index, column_index)] = possible_values
 
