@@ -1,5 +1,7 @@
 import sys
 
+# Terminology is from http://norvig.com/sudoku.html
+
 class Board:
     def __init__(self, rows):
         self.rows = rows
@@ -17,6 +19,19 @@ class Board:
             for c_index, item in enumerate(row):
                 if item == '-':
                     yield r_index, c_index
+
+    def other_row_coordinates(self, row_index, column_index):
+        for r in set(range(0, len(self.rows) - 1)) - set([row_index]):
+            yield r, column_index
+
+    def other_column_coordinates(self, row_index, column_index):
+        for c in set(range(0, len(self.rows[0]) - 1)) - set([column_index]):
+            yield row_index, c
+
+    def other_unit_coordinates(self, row_index, column_index):
+        for r in range (3 * (row_index    // 3), 3 * (row_index    // 3 + 1)):
+            for c in range (3 * (column_index // 3), 3 * (column_index // 3 + 1)):
+                yield r, c
 
     def set_value(self, row_index, column_index, value):
         self.rows[row_index][column_index] = value
