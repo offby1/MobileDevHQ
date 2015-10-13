@@ -21,24 +21,24 @@ class Board:
                 if item == '-':
                     yield r_index, c_index
 
-    def other_row_coordinates(self, row_index, column_index):
-        for r in set(range(0, len(self.rows))) - set([row_index]):
-            yield r, column_index
-
-    def other_column_coordinates(self, row_index, column_index):
-        for c in set(range(0, len(self.rows[0]))) - set([column_index]):
-            yield row_index, c
-
-    def other_unit_coordinates(self, row_index, column_index):
-        for r in range (3 * (row_index    // 3), 3 * (row_index    // 3 + 1)):
-            for c in range (3 * (column_index // 3), 3 * (column_index // 3 + 1)):
-                if r != row_index or c != column_index:
-                    yield r, c
-
     def peer_coordinates(self, row_index, column_index):
-        u = set(self.other_unit_coordinates(row_index, column_index))
-        r = set(self.other_row_coordinates(row_index, column_index))
-        c = set(self.other_column_coordinates(row_index, column_index))
+        def other_row_coordinates(row_index, column_index):
+            for r in sorted(set(range(0, len(self.rows))) - set([row_index])):
+                yield r, column_index
+
+        def other_column_coordinates(row_index, column_index):
+            for c in sorted(set(range(0, len(self.rows[0]))) - set([column_index])):
+                yield row_index, c
+
+        def other_unit_coordinates(row_index, column_index):
+            for r in range (3 * (row_index    // 3), 3 * (row_index    // 3 + 1)):
+                for c in range (3 * (column_index // 3), 3 * (column_index // 3 + 1)):
+                    if r != row_index or c != column_index:
+                        yield r, c
+
+        u = set(other_unit_coordinates  (row_index, column_index))
+        r = set(other_row_coordinates   (row_index, column_index))
+        c = set(other_column_coordinates(row_index, column_index))
         s = (u.union(r).union(c).difference(set([row_index, column_index])))
 
         return s
@@ -60,7 +60,7 @@ class Board:
     def solve(self, depth=0):
         possibles_by_hole = {}
         for row_index, column_index in self.coordinates_of_holes():
-            peer_values = set(self.rows[r][c] for r, c in self.peer_coordinates(row_index, column_index))
+            peer_values = set(self.rows[r][c] for r, c in sorted(self.peer_coordinates(row_index, column_index)))
             peer_values.discard(self.rows[row_index][column_index])
             peer_values.discard('-')
             possible_values = set('123456789').difference(peer_values)
@@ -73,8 +73,8 @@ class Board:
             return self
 
         # order holes fewest possibilities first.
-        for coords, possibles in sorted(possibles_by_hole.items(), key=lambda toop: len(toop[1])):
-            for v in possibles:
+        for coords, possibles in sorted(possibles_by_hole.items(), key=lambda toop: (len(toop[1]), toop)):
+            for v in sorted(possibles):
                 solution = self._try(coords, v, depth=depth)
                 if solution:
                     return solution
