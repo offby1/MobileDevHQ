@@ -31,7 +31,9 @@ class Board:
     def other_unit_coordinates(self, row_index, column_index):
         for r in range (3 * (row_index    // 3), 3 * (row_index    // 3 + 1)):
             for c in range (3 * (column_index // 3), 3 * (column_index // 3 + 1)):
-                yield r, c
+                if r != row_index or c != column_index:
+                    yield r, c
+
 
     def set_value(self, row_index, column_index, value):
         self.rows[row_index][column_index] = value
