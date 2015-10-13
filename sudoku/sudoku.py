@@ -52,10 +52,8 @@ class Board:
         copy = Board(self.rows)
         copy.rows[r] = self.rows[r].copy()
         copy.rows[r][c] = possible_value
-        sub = copy.solve(depth=depth + 1)
-        if sub:
-            return sub
-        return None
+        for s in copy.solve(depth=depth + 1):
+            yield s
 
     def not_obviously_impossible_values(self, row_index, column_index):
         peer_values = set(self.rows[r][c] for r, c in sorted(self.peer_coordinates(row_index, column_index)))
@@ -65,24 +63,23 @@ class Board:
 
     def solve(self, depth=0):
         possibles_by_hole = {}
-        for row_index, column_index in self.coordinates_of_holes():
+        holes = list(self.coordinates_of_holes())
+
+        if not holes:
+            yield self
+
+        for row_index, column_index in holes:
             possible_values = self.not_obviously_impossible_values(row_index, column_index)
             if not(possible_values):
                 print("{}: {} {} have no possible solution".format(depth, row_index, column_index))
-                return None
+                return
             possibles_by_hole[(row_index, column_index)] = possible_values
-
-        if not possibles_by_hole:
-            return self
 
         # order holes fewest possibilities first.
         for coords, possibles in sorted(possibles_by_hole.items(), key=lambda toop: (len(toop[1]), toop)):
             for v in sorted(possibles):
-                solution = self._try(coords, v, depth=depth)
-                if solution:
-                    return solution
-
-        return None
+                for solution in self._try(coords, v, depth=depth):
+                    yield solution
 
     def __str__(self):
         return pprint.pformat(self.rows)
@@ -94,5 +91,6 @@ if __name__ == "__main__":
     print("Board has {} holes".format(len(list(holes))))
     print(b)
 
-    solution = b.solve()
-    print(solution)
+    for solution in b.solve():
+        print(solution)
+        break
