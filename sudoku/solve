@@ -1,1 +1,1 @@
-python sudoku.py < easy
+python sudoku.py < hard
