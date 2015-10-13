@@ -69,6 +69,9 @@ class Board:
                 return None
             possibles_by_hole[(row_index, column_index)] = possible_values
 
+        if not possibles_by_hole:
+            return self
+
         # order holes fewest possibilities first.
         for coords, possibles in sorted(possibles_by_hole.items(), key=lambda toop: len(toop[1])):
             for v in possibles:
