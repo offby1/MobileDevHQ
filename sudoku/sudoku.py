@@ -34,13 +34,21 @@ class Board:
                 if r != row_index or c != column_index:
                     yield r, c
 
+    def peer_coordinates(self, row_index, column_index):
+        u = set(self.other_unit_coordinates(row_index, column_index))
+        r = set(self.other_row_coordinates(row_index, column_index))
+        c = set(self.other_column_coordinates(row_index, column_index))
+        s = (u.union(r).union(c).difference(set([row_index, column_index])))
+
+        return s
 
     def set_value(self, row_index, column_index, value):
         self.rows[row_index][column_index] = value
 
     def solve(self):
         for row_index, column_index in self.coordinates_of_holes():
-            self.set_value(row_index, column_index, 'frotz!!')
+            peer_values = [self.rows[r][c] for r,c in self.peer_coordinates(row_index, column_index)]
+            print(row_index, column_index, sorted(set(peer_values)))
         return self
 
     def __str__(self):
