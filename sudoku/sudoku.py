@@ -2,6 +2,7 @@ import sys
 
 # Terminology is from http://norvig.com/sudoku.html
 
+
 class Board:
     def __init__(self, rows):
         self.rows = rows
@@ -45,17 +46,37 @@ class Board:
     def set_value(self, row_index, column_index, value):
         self.rows[row_index][column_index] = value
 
+    def _try(self, coords, possible_value):
+        r, c = coords
+        print("Trying {} for {}".format(possible_value, coords))
+        copy = Board(self.rows)
+        copy.rows[r] = self.rows[r].copy()
+        copy.rows[r][c] = possible_value
+        sub = copy.solve()
+        if sub:
+            return sub
+        return None
+
     def solve(self):
+        possibles_by_hole = {}
         for row_index, column_index in self.coordinates_of_holes():
-            peer_values = set(self.rows[r][c] for r,c in self.peer_coordinates(row_index, column_index))
+            peer_values = set(self.rows[r][c] for r, c in self.peer_coordinates(row_index, column_index))
             peer_values.discard(self.rows[row_index][column_index])
             peer_values.discard('-')
             possible_values = set('123456789').difference(peer_values)
             if not(possible_values):
                 print("{} {} have no possible solution".format(row_index, column_index))
                 return None
-            print(row_index, column_index, sorted(possible_values))
-        return self
+            possibles_by_hole[(row_index, column_index)] = possible_values
+
+        # order holes fewest possibilities first.
+        for coords, possibles in sorted(possibles_by_hole.items(), key=lambda toop: len(toop[1])):
+            for v in possibles:
+                solution = self._try(coords, v)
+                if solution:
+                    return solution
+
+        return None
 
     def __str__(self):
         return pprint.pformat(self.rows)
