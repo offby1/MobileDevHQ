@@ -49,19 +49,27 @@ class Board:
     def _try(self, coords, possible_value, depth=0):
         r, c = coords
         print("{}: Trying {} for {}".format(depth, possible_value, coords))
+        peer_values = self.peer_values(r, c)
+        if possible_value in peer_values:
+            return
         copy = Board(self.rows)
         copy.rows[r] = self.rows[r].copy()
         copy.rows[r][c] = possible_value
         for s in copy.solve(depth=depth + 1):
             yield s
 
-    def not_obviously_impossible_values(self, row_index, column_index):
-        peer_values = set(self.rows[r][c] for r, c in sorted(self.peer_coordinates(row_index, column_index)))
-        peer_values.discard(self.rows[row_index][column_index])
-        peer_values.discard('-')
-        return set('123456789').difference(peer_values)
+    def peer_values(self, row_index, column_index):
+        return set(self.rows[r][c] for r, c in sorted(self.peer_coordinates(row_index, column_index)))
 
     def solve(self, depth=0):
+
+        def not_obviously_impossible_values(row_index, column_index):
+            peer_values = self.peer_values(row_index, column_index)
+            peer_values.discard('-')
+            possibles = set('123456789').difference(peer_values)
+            possibles.discard(self.rows[row_index][column_index])
+            return possibles
+
         possibles_by_hole = {}
         holes = list(self.coordinates_of_holes())
 
@@ -69,7 +77,7 @@ class Board:
             yield self
 
         for row_index, column_index in holes:
-            possible_values = self.not_obviously_impossible_values(row_index, column_index)
+            possible_values = not_obviously_impossible_values(row_index, column_index)
             if not(possible_values):
                 print("{}: {} {} have no possible solution".format(depth, row_index, column_index))
                 return
