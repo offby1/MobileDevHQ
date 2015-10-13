@@ -21,11 +21,11 @@ class Board:
                     yield r_index, c_index
 
     def other_row_coordinates(self, row_index, column_index):
-        for r in set(range(0, len(self.rows) - 1)) - set([row_index]):
+        for r in set(range(0, len(self.rows))) - set([row_index]):
             yield r, column_index
 
     def other_column_coordinates(self, row_index, column_index):
-        for c in set(range(0, len(self.rows[0]) - 1)) - set([column_index]):
+        for c in set(range(0, len(self.rows[0]))) - set([column_index]):
             yield row_index, c
 
     def other_unit_coordinates(self, row_index, column_index):
